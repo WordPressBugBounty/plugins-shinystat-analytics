@@ -3,7 +3,7 @@ Contributors: shinystat
 Donate link: http://www.shinystat.com/
 Tags: analytics, marketing, seo, heatmaps, conversions, session recording, counter, statistics, tracking, visits, optimize, uniques, visitors, stats, engagement, recommendation, web analytics, marketing automation, ecommerce, ecommerce tracking, javascript error tracking, surveys, artificial intelligence
 Requires at least: 3.1.0
-Tested up to: 6.6
+Tested up to: 6.7
 Stable tag: 1.0.15
 Requires PHP: 5.6
 License: GPLv2 or later
