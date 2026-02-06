@@ -62,7 +62,7 @@
 		$account_type = get_option( $this->option_prefix . '_account_type' );
 
 		$params = array(
-			'description' => __('Insert the ShinyStat visitors counter icon', 'shinystat-analytics'), 
+			'description' => 'Insert the ShinyStat visitors counter icon', 
 			'name' => 'ShinyStat Analytics',
 			'classname' => 'shinystat_analytics',
 		);

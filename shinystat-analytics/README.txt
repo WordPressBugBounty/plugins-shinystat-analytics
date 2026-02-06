@@ -3,8 +3,8 @@ Contributors: shinystat
 Donate link: http://www.shinystat.com/
 Tags: analytics, marketing, seo, heatmaps, conversions, session recording, counter, statistics, tracking, visits, optimize, uniques, visitors, stats, engagement, recommendation, web analytics, marketing automation, ecommerce, ecommerce tracking, javascript error tracking, surveys, artificial intelligence
 Requires at least: 3.1.0
-Tested up to: 6.8
-Stable tag: 1.0.15
+Tested up to: 6.9
+Stable tag: 1.0.16
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -53,6 +53,9 @@ To configure the plugin and collect the traffic information, a ShinyStat account
 Subscribe a free or business account by filling out the related forms [here](https://www.shinystat.com)
 
 == Changelog ==
+
+= 1.0.16 =
+* Small fix for wp ver 6.7 compatibility.
 
 = 1.0.15 =
 * Small fix for php 8.2 compatibility.
@@ -107,6 +110,9 @@ Subscribe a free or business account by filling out the related forms [here](htt
 
 
 == Upgrade Notice ==
+
+= 1.0.16 =
+Small fix for wp ver 6.7 compatibility.
 
 = 1.0.15 =
 Small fix for php 8.2 compatibility.
