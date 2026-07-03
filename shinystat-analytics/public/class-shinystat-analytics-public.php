@@ -164,8 +164,8 @@ class Shinystat_Analytics_Public {
 				var _ssCONV, _ssCurr;
 				(function() {
 	
-					_ssCONV = "<?php echo $conv_name ?>";
-					_ssCurr = "<?php echo $order->get_currency(); ?>";
+					_ssCONV = "<?php echo esc_js( $conv_name ); ?>";
+					_ssCurr = "<?php echo esc_js( $order->get_currency() ); ?>";
 
 					function send_conv_data (attempt) {
 						setTimeout(function () { 
@@ -176,24 +176,24 @@ class Shinystat_Analytics_Public {
 
 								//send order data
 								ssORD(
-									"<?php echo $order->get_id(); ?>", 
-									"<?php echo $order->get_total(); ?>",
-									"<?php echo $order->get_total_tax(); ?>",
-									"<?php echo $order->get_shipping_total(); ?>",
-									"<?php echo $this->clean_field($order->get_shipping_country(), false); ?>",
-									"<?php echo $this->clean_field($order->get_shipping_state(), false); ?>",
-									"<?php echo $this->clean_field($order->get_shipping_city(), false); ?>"
+									"<?php echo esc_js( $order->get_id() ); ?>", 
+									"<?php echo esc_js( $order->get_total() ); ?>",
+									"<?php echo esc_js( $order->get_total_tax() ); ?>",
+									"<?php echo esc_js( $order->get_shipping_total() ); ?>",
+									"<?php echo esc_js( $this->clean_field($order->get_shipping_country(), false) ); ?>",
+									"<?php echo esc_js( $this->clean_field($order->get_shipping_state(), false) ); ?>",
+									"<?php echo esc_js( $this->clean_field($order->get_shipping_city(), false) ); ?>"
 								);
 		
 								//send items data
 								<?php	
 								foreach ( $order->get_items() as $item_id => $item ) { 
 								?>	ssPROD(
-										"<?php echo $item->get_product_id() ?>",
-										"<?php echo $item->get_quantity(); ?>",
-										"<?php echo ($item->get_total() / $item->get_quantity()) ?>",
-										"<?php echo $this->clean_field($item->get_name(), false); ?>",
-										"<?php echo strip_tags(wc_get_product_category_list($item->get_product_id(), ',')); ?>"
+										"<?php echo esc_js( $item->get_product_id() ); ?>",
+										"<?php echo esc_js( $item->get_quantity() ); ?>",
+										"<?php echo esc_js( ($item->get_total() / $item->get_quantity()) ); ?>",
+										"<?php echo esc_js( $this->clean_field($item->get_name(), false) ); ?>",
+										"<?php echo esc_js( wp_strip_all_tags( wc_get_product_category_list( $item->get_product_id(), ',' ) ) ); ?>"
 									);
 								<?php	
 								}
@@ -222,16 +222,19 @@ class Shinystat_Analytics_Public {
 	 * @since 1.0.9
 	 */
 	private function is_post_add_to_cart( ) {
-		global $_POST;
-		
-		if ( isset($_POST["add-to-cart"]) || ( isset($_GET['wc-ajax']) && $_GET['wc-ajax'] == 'add_to_cart' ) ) {
-		
-			if ( isset($_POST["quantity"]) && is_numeric($_POST["quantity"]) )
-				return True;
 
+		$has_add_to_cart = filter_has_var( INPUT_POST, 'add-to-cart' );
+		$wc_ajax = filter_input( INPUT_GET, 'wc-ajax', FILTER_UNSAFE_RAW );
+		$quantity = filter_input( INPUT_POST, 'quantity', FILTER_UNSAFE_RAW );
+
+    
+		if ( $has_add_to_cart || ( ! empty( $wc_ajax ) && 'add_to_cart' === $wc_ajax ) ) {
+			if ( ! empty( $quantity ) && is_numeric( $quantity ) ) {
+				return true;
+			}
 		}
 		
-		return False;
+		return false;
 	}
 
 
@@ -265,9 +268,9 @@ class Shinystat_Analytics_Public {
 						apply_redirect: function(redirect) {
 
 							if (redirect == "cart")
-								window.location.href = "<?php echo get_permalink( wc_get_page_id( "cart" )); ?>";
+								window.location.href = "<?php echo esc_url( get_permalink( wc_get_page_id( "cart" )) ); ?>";
 							if (redirect == "checkout")
-								window.location.href = "<?php echo get_permalink( wc_get_page_id( "checkout" )); ?>";
+								window.location.href = "<?php echo esc_url( get_permalink( wc_get_page_id( "checkout" )) ); ?>";
 			
 						},
 
@@ -277,7 +280,7 @@ class Shinystat_Analytics_Public {
 						get_cart_content: function(callback_fnc) {
 
 							let xhr_prod = new XMLHttpRequest();
-							xhr_prod.open('GET', "<?php echo get_rest_url( null, 'shinystat/v1/cart' ); ?>" );
+							xhr_prod.open('GET', "<?php echo esc_url( get_rest_url( null, 'shinystat/v1/cart' ) ); ?>" );
 
 							xhr_prod.onload  = function() {
 								if (!!xhr_prod.responseText) {
@@ -347,7 +350,7 @@ class Shinystat_Analytics_Public {
 						apply_discount: function(name, redirect) {
 
 							var srcdata_nonce = "<?php echo ($user_logged || $session_existing) ? "complete" : "partial"; ?>";
-							var apply_coupon_nonce = "<?php echo wp_create_nonce('apply-coupon') ?>";
+							var apply_coupon_nonce = "<?php echo esc_js( wp_create_nonce('apply-coupon') ); ?>";
 
 							if (srcdata_nonce == "complete") {
 							
@@ -357,7 +360,7 @@ class Shinystat_Analytics_Public {
 
 								//get valid nonce after the cart session is initialized
 								let xhr_cart = new XMLHttpRequest();
-								xhr_cart.open('GET', "<?php echo get_permalink( wc_get_page_id( "cart" )); ?>");
+								xhr_cart.open('GET', "<?php echo esc_url( get_permalink( wc_get_page_id( "cart" )) ); ?>");
 
 								xhr_cart.onload  = function() {
 									if (!!xhr_cart.responseText) {
@@ -378,7 +381,7 @@ class Shinystat_Analytics_Public {
 						get_product_details: function(callback_fnc, prod_id) {
 							
 							let xhr_prod = new XMLHttpRequest();
-							xhr_prod.open('GET', "<?php echo get_rest_url( null, 'shinystat/v1/product/' ); ?>" + prod_id);
+							xhr_prod.open('GET', "<?php echo esc_url( get_rest_url( null, 'shinystat/v1/product/' ) ); ?>" + prod_id);
 
 							xhr_prod.onload  = function() {
 								if (!!xhr_prod.responseText) {
@@ -425,7 +428,7 @@ class Shinystat_Analytics_Public {
 						update_product_quantity: function(id, quantity=0, redirect="") {
 
 							let xhr_prod = new XMLHttpRequest();
-							xhr_prod.open('POST', "<?php echo get_rest_url( null, 'shinystat/v1/set_product_quantity/' ); ?>");
+							xhr_prod.open('POST', "<?php echo esc_url( get_rest_url( null, 'shinystat/v1/set_product_quantity/' ) ); ?>");
 							
 							xhr_prod.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
@@ -535,8 +538,10 @@ class Shinystat_Analytics_Public {
 
 		$script = '<script type="text/javascript" id="shn-engage-cart-update">';
 		
-		if ( $update_cart_timestamp )
-			$script .= 'shn_engage.update_timestamp( )';
+		if ( $update_cart_timestamp ) {
+			$script .= 'if ( typeof shn_engage !== "undefined" && typeof shn_engage.update_timestamp === "function" ) ';
+			$script .= '{ shn_engage.update_timestamp(); }';
+		}
 
 		$script .= '</script>';
 
@@ -555,11 +560,10 @@ class Shinystat_Analytics_Public {
 	 * 
 	 * @since    1.0.14
 	 */
-	public function set_product_quantity( ) {
-		global $_POST;
+	public function set_product_quantity( WP_REST_Request $request ) {
 
-		$product_id = $_POST['product_id'];
-		$quantity = $_POST['quantity'];
+		$product_id = $request->get_param( 'product_id' );
+		$quantity = $request->get_param( 'quantity' );
 
 		if ( ! is_numeric($product_id) )
 			return ['code' => 'parameter_value_not_valid_product_id', 'message' => 'product_id is not a numeric value'];
@@ -588,8 +592,62 @@ class Shinystat_Analytics_Public {
 
 		return ['code' => 'successfull', 'message' => ''];
 	}
-		
-		
+
+
+        /**
+         * Get attributes of a wc product
+         * 
+         * @since    1.0.17
+         */
+        private function get_product_attributes( $product ) {
+                
+                $attributes = [];
+                foreach ( $product->get_attributes() as $attribute ) {
+    
+                        if ( ! is_a( $attribute, 'WC_Product_Attribute' ) )
+                                continue;
+
+                        if ( $attribute->is_taxonomy() ) {
+                                //global attribute
+                                $values = wc_get_product_terms( $product->get_id(), $attribute->get_name(), array( 'fields' => 'names' ) );
+                                $value_string = implode( '|', $values );
+                        } else {
+                                //local attribute
+                                $options = $attribute->get_options();
+                                $value_string = implode( '|', $options );
+                        }
+
+                        //conversion of attribute name in attribute label
+                        $tax_object = get_taxonomy( $attribute->get_name() );
+                        $label = $tax_object ? $tax_object->labels->singular_name : $attribute->get_name();
+
+                        $attributes[] = [
+                                'name'  => $this->clean_field( $label ),
+                                'value' => $this->clean_field( $value_string ),
+                        ];
+                }
+
+                return $attributes;
+        }
+
+
+        /**
+         * Get categories of a wc product
+         * 
+         * @since    1.0.17
+         */
+        private function get_product_categories( $product ) {
+                $categories = [];
+                $terms = get_the_terms( $product->get_id(), 'product_cat' );
+                if ( is_array( $terms ) && ! is_wp_error( $terms ) ) {
+                        foreach ( $terms as $term ) {        
+                                $categories[] = $this->clean_field( $term->name );
+                        }
+                }
+
+        }
+
+
 	/**
 	 * Get data about specified wc product id for the rest api response.
 	 * 
@@ -605,28 +663,13 @@ class Shinystat_Analytics_Public {
 		if ( ! $product )
 			return ['code' => 'product_not_found', 'message' => 'product id does not correspond to any product'];
 
+		if ( $product->get_status() !== 'publish' )
+			return ['code' => 'product_not_visible', 'message' => 'product is not available.'];
 
-		$attributes = [];
-		foreach ( $product->get_attributes() as $attribute ) {
-			if ( is_string($attribute) ) {
-				$attributes[] = $attribute;
-			} else {
-				$attribute_data = $attribute->get_data();
-				$value = $attribute_data['value'];
-				$attributes[] = [
-					'name' => $this->clean_field( $attribute_data['name'] ),
-					'value' => $this->clean_field( is_array($value) ? '' : $value ),
-				];
-			}
-		}
 
-		$categories = [];
-		$terms = get_the_terms( $product->get_id(), 'product_cat' );
-		if ( is_array($terms) ) {
-			foreach( $terms as $term ) {
-				$categories[] = $this->clean_field( $term->name );
-			}
-		}
+		$attributes = $this->get_product_attributes( $product );
+		$categories = $this->get_product_categories( $product );
+
 
 		return [
 			'id' => $product->get_id(),
@@ -680,7 +723,7 @@ class Shinystat_Analytics_Public {
       
 			$cart_content["items"][] = [
 				'id' =>                     $product_json['id'],
-				'quantity' =>               $cart_item['quantity'],
+				'quantity' =>               (int) $cart_item['quantity'],
 				'key' =>                    $this->clean_field($cart_item['key']),
 				'handle' =>                 $this->clean_field($product_json['slug']),
 				'product_title' =>          $this->clean_field($product_json['name']),
@@ -709,19 +752,19 @@ class Shinystat_Analytics_Public {
 	 */
 	public function register_shinystat_rest_route() {
 	
-		register_rest_route( 'shinystat/v1', 'product/(?P<id>\d+)', [
+		register_rest_route( 'shinystat/v1', '/product/(?P<id>\d+)', [
 			'methods' => [ 'GET' ],
 			'callback' => array($this, 'get_product_details'),
 			'permission_callback' => '__return_true'
 		]);
 
-		register_rest_route( 'shinystat/v1', 'cart', [
+		register_rest_route( 'shinystat/v1', '/cart', [
 			'methods' => [ 'GET' ],
 			'callback' => array($this, 'get_cart_content'),
 			'permission_callback' => '__return_true'
 		]);
 		
-		register_rest_route( 'shinystat/v1', 'set_product_quantity', [
+		register_rest_route( 'shinystat/v1', '/set_product_quantity', [
 			'methods' => [ 'POST' ],
 			'callback' => array($this, 'set_product_quantity'),
 			'permission_callback' => '__return_true'

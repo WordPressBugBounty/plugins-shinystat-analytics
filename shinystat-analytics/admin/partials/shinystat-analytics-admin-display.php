@@ -14,7 +14,11 @@
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
-
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; //block direct access to this file
+}
+?>
 
 <div class="wrap">
 	<h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
